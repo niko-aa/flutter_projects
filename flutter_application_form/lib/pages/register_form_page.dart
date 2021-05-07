@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_form/model/user.dart';
+import 'package:flutter_application_form/pages/user_info_page.dart';
 
 class RegisterFormPage extends StatefulWidget {
   @override
@@ -14,6 +16,8 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
   final _nameFocus = FocusNode();
   final _phoneFocus = FocusNode();
   final _passFocus = FocusNode();
+
+  final User newUser = User();
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -94,6 +98,7 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
                     borderSide: BorderSide(color: Colors.blue, width: 2.0)),
               ),
               validator: _nameValidate,
+              onSaved: (value) => newUser.name = value,
             ),
             SizedBox(
               height: 10,
@@ -133,6 +138,7 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
               validator: (value) => _phoneValidate(value)
                   ? null
                   : 'Introduceti numarul de telefon in formatul (XXX)XXX-XXXX',
+              onSaved: (value) => newUser.phone = value,
             ),
             SizedBox(
               height: 10,
@@ -144,7 +150,8 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
                   hintText: 'Intoduceti adresa email',
                   icon: Icon(Icons.email)),
               keyboardType: TextInputType.emailAddress,
-              validator: _emailValidate,
+              // validator: _emailValidate,
+              onSaved: (value) => newUser.email = value,
             ),
             SizedBox(
               height: 10,
@@ -168,6 +175,7 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
                 print(data);
                 setState(() {
                   _countrySelected = data;
+                  newUser.country = data;
                 });
               },
               value: _countrySelected,
@@ -190,6 +198,7 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
               inputFormatters: [
                 LengthLimitingTextInputFormatter(160),
               ],
+              onSaved: (value) => newUser.story = value,
             ),
             SizedBox(
               height: 20,
@@ -251,6 +260,7 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
 
   void _submitForm() {
     if (_keyForm.currentState.validate()) {
+      _keyForm.currentState.save();
       _showDialog(name: _nameController.text);
       print('Name: ${_nameController.text}');
       print('Phone: ${_phoneController.text}');
@@ -281,9 +291,10 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
   }
 
   String _emailValidate(String value) {
-    if (value.isEmpty) {
-      return 'email cimp obligatoriu';
-    } else if (!_emailController.text.contains('@')) {
+    //if (value.isEmpty) {
+    //return 'email cimp obligatoriu';
+    //} else
+    if (!_emailController.text.contains('@')) {
       return 'Nu corespunde unei adrese email';
     } else {
       return null;
@@ -331,9 +342,15 @@ class _RegisterFormPageState extends State<RegisterFormPage> {
                   fontSize: 18),
             ),
             actions: [
-              FlatButton(
+              TextButton(
                   onPressed: () {
                     Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UserInfoPage(
+                                  userInfo: newUser,
+                                )));
                   },
                   child: Text(
                     'Verificat!',
